@@ -224,7 +224,7 @@ try {
 
   Write-Host "  Get started:" -ForegroundColor DarkGray
   Write-Host "     mux --help" -ForegroundColor White
-  Write-Host "     mux new my-project" -ForegroundColor White
+  Write-Host "     mux init my-project or mux init my-project --cpp" -ForegroundColor White
   Write-Host ""
   Write-Host "  Docs & releases → " -ForegroundColor DarkGray -NoNewline
   Write-Host "https://themux.dev" -ForegroundColor Cyan
