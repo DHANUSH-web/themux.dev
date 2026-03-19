@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ClipboardIcon } from "@radix-ui/react-icons";
+import { CheckIcon, CopyIcon } from "@radix-ui/react-icons";
 
 const Uri = {
   windows: "irm https://themux.dev/install.ps1 | iex",
@@ -10,40 +10,65 @@ const Uri = {
 
 enum Platform {
   Windows = "windows",
-  Unix = "linux",
-  Unknown = "unknown",
+  Unix = "unix",
 }
 
 const getClientPlatform = (): Platform => {
-  const arch = navigator.userAgent;
-  return arch.includes("Win") ? Platform.Windows : Platform.Unix;
+  return navigator.userAgent.includes("Win") ? Platform.Windows : Platform.Unix;
 };
 
 export default function InstallCmd({ className }: { className?: string }) {
   const [platform, setPlatform] = useState<Platform>(getClientPlatform);
+  const [copied, setCopied] = useState(false);
   const uri = platform === Platform.Windows ? Uri.windows : Uri.unix;
 
-  const handleCopyUriToClipboard = () => {
+  const handleCopy = () => {
     navigator.clipboard.writeText(uri);
-  }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className={className}>
-      <div className="flex items-center justify-between">
-        <code className="flex items-center justify-center text-sm font-mono w-fit max-w-2xl px-3 h-9 bg-zinc-100 dark:bg-zinc-800 rounded-l-lg ">
-          {uri}
-        </code>
+      <div className="flex items-stretch rounded-xl border border-white/10 bg-white/4 overflow-hidden backdrop-blur-sm">
+        <div className="flex items-center gap-2 px-4 py-3 flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <span className="text-white/30 font-mono text-sm select-none">$</span>
+          <code className="font-mono text-sm text-white/80 whitespace-nowrap">{uri}</code>
+        </div>
         <button
-          className="flex items-center justify-center cursor-pointer bg-zinc-300 dark:bg-zinc-600 h-9 w-9 rounded-r-lg"
+          onClick={handleCopy}
           title="Copy to clipboard"
-          onClick={handleCopyUriToClipboard}
+          className="flex items-center justify-center w-12 shrink-0 border-l border-white/8 text-white/40 hover:text-white hover:bg-white/6 transition-all cursor-pointer"
         >
-          <ClipboardIcon />
+          {copied ? (
+            <CheckIcon className="w-4 h-4 text-emerald-400" />
+          ) : (
+            <CopyIcon className="w-4 h-4" />
+          )}
         </button>
       </div>
-      <div className="flex items-center justify-center space-x-1 mt-2">
-        <span onClick={() => setPlatform(Platform.Windows)} className={`text-xs font-medium ${platform === Platform.Windows ? "bg-zinc-200 dark:bg-zinc-800" : "bg-none"} px-2 py-1 rounded-full cursor-pointer select-none`}>Windows</span>
-        <span onClick={() => setPlatform(Platform.Unix)} className={`text-xs font-medium ${platform !== Platform.Windows ? "bg-zinc-200 dark:bg-zinc-800" : "bg-none"} px-2 py-1 rounded-full cursor-pointer select-none`}>Linux/macOS</span>
+
+      <div className="flex items-center justify-center gap-1 mt-3">
+        <button
+          onClick={() => setPlatform(Platform.Windows)}
+          className={`text-xs px-3 py-1 rounded-full transition-all cursor-pointer ${
+            platform === Platform.Windows
+              ? "bg-white/10 text-white border border-white/15"
+              : "text-white/35 hover:text-white/60"
+          }`}
+        >
+          Windows
+        </button>
+        <button
+          onClick={() => setPlatform(Platform.Unix)}
+          className={`text-xs px-3 py-1 rounded-full transition-all cursor-pointer ${
+            platform === Platform.Unix
+              ? "bg-white/10 text-white border border-white/15"
+              : "text-white/35 hover:text-white/60"
+          }`}
+        >
+          Linux / macOS
+        </button>
       </div>
     </div>
   );
