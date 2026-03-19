@@ -4,24 +4,63 @@ set -eu
 REPO="DHANUSH-web/mux"
 BINARY_NAME="mux"
 
+# ── ANSI colors (disabled when not a tty) ────────────────────────────────────
+if [ -t 1 ]; then
+  BOLD='\033[1m'
+  DIM='\033[2m'
+  GREEN='\033[0;32m'
+  BGREEN='\033[1;32m'
+  YELLOW='\033[1;33m'
+  CYAN='\033[0;36m'
+  RED='\033[0;31m'
+  RESET='\033[0m'
+else
+  BOLD='' DIM='' GREEN='' BGREEN='' YELLOW='' CYAN='' RED='' RESET=''
+fi
+
+# ── Logging helpers ───────────────────────────────────────────────────────────
+banner() {
+  printf "\n"
+  printf "  ${BOLD}  ███╗   ███╗██╗   ██╗██╗  ██╗${RESET}\n"
+  printf "  ${BOLD}  ████╗ ████║██║   ██║╚██╗██╔╝${RESET}\n"
+  printf "  ${BOLD}  ██╔████╔██║██║   ██║ ╚███╔╝ ${RESET}\n"
+  printf "  ${BOLD}  ██║╚██╔╝██║██║   ██║ ██╔██╗ ${RESET}\n"
+  printf "  ${BOLD}  ██║ ╚═╝ ██║╚██████╔╝██╔╝ ██╗${RESET}\n"
+  printf "  ${BOLD}  ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝${RESET}\n"
+  printf "\n"
+  printf "  ${DIM}The C/C++ project manager — themux.dev${RESET}\n"
+  printf "  ${DIM}─────────────────────────────────────${RESET}\n\n"
+}
+
+step()    { printf "  ${CYAN}→${RESET}  %-34s" "$1"; }
+ok()      { printf "${BGREEN}%s${RESET}\n" "$1"; }
+info()    { printf "  ${DIM}   %s${RESET}\n" "$1"; }
+success() { printf "  ${BGREEN}✓${RESET}  ${BOLD}%s${RESET}\n" "$1"; }
+warn()    { printf "  ${YELLOW}⚠${RESET}   %s\n" "$1"; }
+die()     { printf "\n  ${RED}✗${RESET}  ${BOLD}%s${RESET}\n\n" "$1" >&2; exit 1; }
+
+# ── Usage ─────────────────────────────────────────────────────────────────────
 print_usage() {
   cat <<USAGE
-Usage: install.sh [options]
 
-Options:
-  --version <tag>      Install specific version (e.g. v0.1.0). Default: latest
-  --install-dir <dir>  Install directory override
-  --repo <owner/repo>  Override GitHub repo. Default: ${REPO}
-  --system             Install system-wide to /usr/local/bin
-  -h, --help           Show help
+  ${BOLD}Usage:${RESET} install.sh [options]
 
-Examples:
-  curl -fsSL https://raw.githubusercontent.com/${REPO}/main/install.sh | sh
-  curl -fsSL https://raw.githubusercontent.com/${REPO}/main/install.sh | sh -s -- --version v0.1.0
-  curl -fsSL https://raw.githubusercontent.com/${REPO}/main/install.sh | sh -s -- --system
+  ${BOLD}Options:${RESET}
+    --version <tag>      Install a specific version  (e.g. v0.1.0)
+    --install-dir <dir>  Override the install directory
+    --repo <owner/repo>  Override the GitHub repo
+    --system             Install system-wide to /usr/local/bin
+    -h, --help           Show this help message
+
+  ${BOLD}Examples:${RESET}
+    curl -fsSL https://themux.dev/install.sh | sh
+    curl -fsSL https://themux.dev/install.sh | sh -s -- --version v0.1.0
+    curl -fsSL https://themux.dev/install.sh | sh -s -- --system
+
 USAGE
 }
 
+# ── Argument parsing ──────────────────────────────────────────────────────────
 VERSION="latest"
 INSTALL_DIR=""
 SYSTEM_INSTALL=0
@@ -29,113 +68,99 @@ SYSTEM_INSTALL=0
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --version)
-      [ "$#" -ge 2 ] || { echo "Missing value for --version" >&2; exit 1; }
-      VERSION="$2"
-      shift 2
-      ;;
+      [ "$#" -ge 2 ] || die "Missing value for --version"
+      VERSION="$2"; shift 2 ;;
     --install-dir)
-      [ "$#" -ge 2 ] || { echo "Missing value for --install-dir" >&2; exit 1; }
-      INSTALL_DIR="$2"
-      shift 2
-      ;;
+      [ "$#" -ge 2 ] || die "Missing value for --install-dir"
+      INSTALL_DIR="$2"; shift 2 ;;
     --repo)
-      [ "$#" -ge 2 ] || { echo "Missing value for --repo" >&2; exit 1; }
-      REPO="$2"
-      shift 2
-      ;;
+      [ "$#" -ge 2 ] || die "Missing value for --repo"
+      REPO="$2"; shift 2 ;;
     --system)
-      SYSTEM_INSTALL=1
-      shift
-      ;;
+      SYSTEM_INSTALL=1; shift ;;
     -h|--help)
-      print_usage
-      exit 0
-      ;;
+      print_usage; exit 0 ;;
     *)
-      echo "Unknown argument: $1" >&2
-      print_usage >&2
-      exit 1
-      ;;
+      printf "  ${RED}✗${RESET}  Unknown argument: %s\n\n" "$1" >&2
+      print_usage >&2; exit 1 ;;
   esac
 done
 
+# ── Check dependencies ────────────────────────────────────────────────────────
 if command -v curl >/dev/null 2>&1; then
   DOWNLOAD_TOOL="curl"
 elif command -v wget >/dev/null 2>&1; then
   DOWNLOAD_TOOL="wget"
 else
-  echo "Error: curl or wget is required." >&2
-  exit 1
+  die "curl or wget is required to install mux"
 fi
 
 download_to() {
-  url="$1"
-  out="$2"
   if [ "$DOWNLOAD_TOOL" = "curl" ]; then
-    curl -fsSL "$url" -o "$out"
+    curl -fsSL "$1" -o "$2"
   else
-    wget -q "$url" -O "$out"
+    wget -q "$1" -O "$2"
   fi
 }
 
 download_text() {
-  url="$1"
   if [ "$DOWNLOAD_TOOL" = "curl" ]; then
-    curl -fsSL "$url"
+    curl -fsSL "$1"
   else
-    wget -qO- "$url"
+    wget -qO- "$1"
   fi
 }
 
+# ── Start ─────────────────────────────────────────────────────────────────────
+banner
+
+# Detect platform
+step "Detecting platform"
 uname_s="$(uname -s)"
 uname_m="$(uname -m)"
 
 case "$uname_s" in
-  Linux) platform="linux" ;;
+  Linux)  platform="linux" ;;
   Darwin) platform="macos" ;;
-  *)
-    echo "Unsupported OS for install.sh: $uname_s" >&2
-    exit 1
-    ;;
+  *)      die "Unsupported OS: $uname_s" ;;
 esac
 
 case "$uname_m" in
-  x86_64|amd64) arch="x86_64" ;;
-  aarch64|arm64) arch="aarch64" ;;
-  *)
-    echo "Unsupported architecture: $uname_m" >&2
-    exit 1
-    ;;
+  x86_64|amd64)   arch="x86_64" ;;
+  aarch64|arm64)  arch="aarch64" ;;
+  *)              die "Unsupported architecture: $uname_m" ;;
 esac
 
+ok "${platform}/${arch}"
+
+# Resolve version
+step "Resolving version"
+if [ "$VERSION" = "latest" ]; then
+  api_url="https://api.github.com/repos/${REPO}/releases/latest"
+  tag="$(download_text "$api_url" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)"
+  [ -n "$tag" ] || die "Could not resolve latest release from GitHub"
+else
+  tag="$VERSION"
+fi
+ok "$tag"
+
+# Resolve target triple
+case "${platform}/${arch}" in
+  linux/x86_64)   target="x86_64-unknown-linux-gnu" ;;
+  macos/x86_64)   target="x86_64-apple-darwin" ;;
+  linux/aarch64)  target="aarch64-unknown-linux-gnu" ;;
+  macos/aarch64)  target="aarch64-apple-darwin" ;;
+  *)              die "No release available for ${platform}/${arch}" ;;
+esac
+
+# Resolve install dir
 if [ "$SYSTEM_INSTALL" -eq 1 ] && [ -z "$INSTALL_DIR" ]; then
   INSTALL_DIR="/usr/local/bin"
 elif [ -z "$INSTALL_DIR" ]; then
   INSTALL_DIR="$HOME/.local/bin"
 fi
 
-if [ "$VERSION" = "latest" ]; then
-  api_url="https://api.github.com/repos/${REPO}/releases/latest"
-  tag="$(download_text "$api_url" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)"
-  if [ -z "$tag" ]; then
-    echo "Failed to resolve latest release tag from $api_url" >&2
-    exit 1
-  fi
-else
-  tag="$VERSION"
-fi
-
-case "$platform/$arch" in
-  linux/x86_64) target="x86_64-unknown-linux-gnu" ;;
-  macos/x86_64) target="x86_64-apple-darwin" ;;
-  linux/aarch64) target="aarch64-unknown-linux-gnu" ;;
-  macos/aarch64) target="aarch64-apple-darwin" ;;
-  *)
-    echo "No supported release target for ${platform}/${arch}" >&2
-    exit 1
-    ;;
-esac
-
+# Build URLs
 asset="${BINARY_NAME}-${target}"
 archive_asset="${asset}.tar.gz"
 base_url="https://github.com/${REPO}/releases/download/${tag}"
@@ -143,6 +168,7 @@ asset_url="${base_url}/${asset}"
 archive_url="${base_url}/${archive_asset}"
 checksums_url="${base_url}/SHA256SUMS"
 
+# Temp dir
 tmp_dir="$(mktemp -d 2>/dev/null || mktemp -d -t mux-install)"
 trap 'rm -rf "$tmp_dir"' EXIT INT TERM
 
@@ -152,28 +178,30 @@ install_source=""
 source_name=""
 checksum_path=""
 
-echo "Installing ${BINARY_NAME} ${tag} (${target})"
-if download_to "$asset_url" "$asset_path"; then
+# Download
+step "Downloading mux ${tag}"
+if download_to "$asset_url" "$asset_path" 2>/dev/null; then
   install_source="$asset_path"
   source_name="$asset"
   checksum_path="$asset_path"
   chmod +x "$install_source" || true
+  ok "done"
 else
-  echo "Direct binary not found, trying archive ${archive_asset}"
-  download_to "$archive_url" "$archive_path"
+  ok "trying archive..."
+  step "Downloading archive"
+  download_to "$archive_url" "$archive_path" || die "Failed to download ${archive_asset}"
   extract_dir="${tmp_dir}/extract"
   mkdir -p "$extract_dir"
   tar -xzf "$archive_path" -C "$extract_dir"
   install_source="${extract_dir}/${asset}"
   source_name="$archive_asset"
   checksum_path="$archive_path"
-  if [ ! -f "$install_source" ]; then
-    echo "Could not find ${asset} in archive" >&2
-    exit 1
-  fi
+  [ -f "$install_source" ] || die "Could not find ${asset} in archive"
+  ok "done"
 fi
 
-# Optional checksum verification if SHA256SUMS is present.
+# Checksum
+step "Verifying checksum"
 if command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1; then
   checksums_path="${tmp_dir}/SHA256SUMS"
   if download_to "$checksums_url" "$checksums_path" 2>/dev/null; then
@@ -184,26 +212,41 @@ if command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1; th
       else
         actual="$(shasum -a 256 "$checksum_path" | awk '{print $1}')"
       fi
-      if [ "$actual" != "$expected" ]; then
-        echo "Checksum verification failed for ${source_name}" >&2
-        exit 1
-      fi
-      echo "Checksum verified"
+      [ "$actual" = "$expected" ] || die "Checksum mismatch — download may be corrupted"
+      ok "verified"
+    else
+      ok "skipped"
     fi
+  else
+    ok "skipped"
   fi
+else
+  ok "skipped (no sha256sum)"
 fi
 
+# Install
+step "Installing to ${INSTALL_DIR}"
 mkdir -p "$INSTALL_DIR"
 target_path="${INSTALL_DIR}/${BINARY_NAME}"
 cp "$install_source" "$target_path"
 chmod +x "$target_path" || true
+ok "done"
 
-echo "Installed ${BINARY_NAME} to ${target_path}"
+# ── Done ──────────────────────────────────────────────────────────────────────
+printf "\n"
+success "mux ${tag} installed successfully!"
+printf "\n"
 
 case ":$PATH:" in
   *":${INSTALL_DIR}:"*) ;;
   *)
-    echo "Note: ${INSTALL_DIR} is not in PATH. Add this to your shell profile:"
-    echo "  export PATH=\"${INSTALL_DIR}:\$PATH\""
+    warn "${INSTALL_DIR} is not in your PATH. Add this to your shell profile:"
+    printf "     ${DIM}export PATH=\"${INSTALL_DIR}:\$PATH\"${RESET}\n\n"
     ;;
 esac
+
+printf "  ${DIM}Get started:${RESET}\n"
+printf "     ${BOLD}mux --help${RESET}\n"
+printf "     ${BOLD}mux init my-project${RESET} or ${BOLD}mux init my-project --cpp${RESET}\n"
+printf "\n"
+printf "  ${DIM}Docs & releases → ${RESET}${CYAN}https://themux.dev${RESET}\n\n"
