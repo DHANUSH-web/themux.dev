@@ -421,37 +421,37 @@ target_link_libraries(my-app PRIVATE fmt::fmt spdlog::spdlog)`}</CodeBlock>
       ══════════════════════════════════════════════════════ */}
       <SectionHeading id="examples">Examples</SectionHeading>
 
-      <SubHeading id="example-json">JSON parsing with nlohmann/json</SubHeading>
-      <CodeBlock lang="sh">{`mux init json-reader
-cd json-reader
-mux add nlohmann_json
+      <SubHeading id="example-c">A simple C project</SubHeading>
+      <CodeBlock lang="sh">{`mux init hello
+cd hello
 mux build && mux run`}</CodeBlock>
       <br />
-      <CodeBlock lang="cpp">{`// src/main.cpp
-#include <nlohmann/json.hpp>
-#include <iostream>
+      <CodeBlock lang="c">{`// src/main.c
+#include <stdio.h>
 
-int main() {
-    auto j = nlohmann::json::parse(R"({"name":"mux","version":"0.1.2"})");
-    std::cout << j["name"] << "\\n";
+int main(void) {
+    printf("Hello from mux!\\n");
+    return 0;
 }`}</CodeBlock>
 
-      <SubHeading id="example-logging">
-        Structured logging with spdlog
-      </SubHeading>
-      <CodeBlock lang="sh">{`mux init server
-cd server
-mux add spdlog
-mux add fmt
-mux build --release`}</CodeBlock>
+      <SubHeading id="example-args">Adding a dependency</SubHeading>
+      <CodeBlock lang="sh">{`mux init greeter
+cd greeter
+mux add antirez/linenoise
+mux build && mux run`}</CodeBlock>
       <br />
-      <CodeBlock lang="cpp">{`// src/main.cpp
-#include <spdlog/spdlog.h>
+      <CodeBlock lang="c">{`// src/main.c
+#include <linenoise.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-int main() {
-    spdlog::info("server starting");
-    spdlog::warn("low memory");
-    spdlog::error("connection refused");
+int main(void) {
+    char *name = linenoise("Enter your name: ");
+    if (name) {
+        printf("Hello, %s!\\n", name);
+        free(name);
+    }
+    return 0;
 }`}</CodeBlock>
 
       {/* Footer nav */}
