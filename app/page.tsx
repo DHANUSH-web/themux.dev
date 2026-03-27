@@ -1,3 +1,4 @@
+import Link from "next/link";
 import InstallCmd from "@/components/installcmd";
 import {
   GitHubLogoIcon,
@@ -97,6 +98,12 @@ export default async function Home() {
         </div>
 
         <nav className="flex items-center gap-5">
+          <Link
+            href="/docs"
+            className="text-sm text-white/50 hover:text-white transition-colors"
+          >
+            Docs
+          </Link>
           {stars > 0 && (
             <a
               href="https://github.com/DHANUSH-web/mux/stargazers"
