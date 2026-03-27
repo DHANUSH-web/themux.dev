@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
 };
 
-export default nextConfig;
+const withMDX = createMDX({
+  options: {
+    rehypePlugins: ["rehype-slug" as never],
+  },
+});
+
+export default withMDX(nextConfig);
