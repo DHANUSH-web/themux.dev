@@ -193,7 +193,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/6 px-6 py-5 max-w-5xl mx-auto w-full">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/25">
-          <span>Built with love for the C/C++ community.</span>
+          <span>Built with Rust for the C/C++ community.</span>
           <div className="flex items-center gap-4">
             <a
               href="https://github.com/DHANUSH-web/mux"
