@@ -7,84 +7,11 @@ import {
   GitHubLogoIcon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
-
-function CodeBlock({ children, lang }: { children: string; lang?: string }) {
-  return (
-    <div className="relative">
-      {lang && (
-        <span className="absolute top-3 right-3 text-[10px] font-mono text-white/20 uppercase tracking-widest select-none">
-          {lang}
-        </span>
-      )}
-      <pre className="bg-white/3 border border-white/8 rounded-lg px-5 py-4 overflow-x-auto [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.1)_transparent]">
-        <code className="font-mono text-sm text-white/72 leading-relaxed whitespace-pre">
-          {children}
-        </code>
-      </pre>
-    </div>
-  );
-}
-
-function InlineCode({ children }: { children: string }) {
-  return (
-    <code className="font-mono text-[13px] bg-white/7 text-white/80 px-1.5 py-0.5 rounded border border-white/8">
-      {children}
-    </code>
-  );
-}
-
-function SectionHeading({
-  id,
-  children,
-}: {
-  id: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <h2
-      id={id}
-      className="text-lg font-semibold text-white mt-14 mb-4 pt-6 border-t border-white/6 flex items-center gap-2 group scroll-mt-20"
-    >
-      <a
-        href={`#${id}`}
-        className="text-white/20 group-hover:text-white/40 transition-colors text-base"
-      >
-        #
-      </a>
-      {children}
-    </h2>
-  );
-}
-
-function SubHeading({
-  id,
-  children,
-}: {
-  id: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <h3
-      id={id}
-      className="text-base font-semibold text-white/90 mt-8 mb-3 scroll-mt-20"
-    >
-      {children}
-    </h3>
-  );
-}
-
-function Flag({ flag, description }: { flag: string; description: string }) {
-  return (
-    <div className="flex items-start gap-4 py-2.5 border-b border-white/5 last:border-0">
-      <div className="shrink-0">
-        <InlineCode>{flag}</InlineCode>
-      </div>
-      <span className="text-sm text-white/45 leading-relaxed">
-        {description}
-      </span>
-    </div>
-  );
-}
+import SectionHeading from "@/components/section-heading";
+import SubHeading from "@/components/sub-heading";
+import Flag from "@/components/flag";
+import InlineCode from "@/components/inlinecode";
+import CodeBlock from "@/components/codeblock";
 
 export default function DocsPage() {
   return (
@@ -342,10 +269,7 @@ mux add fmtlib/fmt --target my_server`}</CodeBlock>
         Flags
       </div>
       <div className="border border-white/7 rounded-lg px-4 py-1 mb-4">
-        <Flag
-          flag="--release"
-          description="Build the release preset."
-        />
+        <Flag flag="--release" description="Build the release preset." />
         <Flag
           flag="--all"
           description="Build both debug and release presets."
@@ -397,10 +321,7 @@ mux run --release`}</CodeBlock>
           flag="--release"
           description="Build and test using the release preset."
         />
-        <Flag
-          flag="--all"
-          description="Test both debug and release presets."
-        />
+        <Flag flag="--all" description="Test both debug and release presets." />
       </div>
 
       <CodeBlock lang="sh">{`mux test
@@ -505,6 +426,7 @@ target_link_libraries(my-app PRIVATE fmt::fmt spdlog::spdlog)`}</CodeBlock>
 cd json-reader
 mux add nlohmann_json
 mux build && mux run`}</CodeBlock>
+      <br />
       <CodeBlock lang="cpp">{`// src/main.cpp
 #include <nlohmann/json.hpp>
 #include <iostream>
@@ -522,6 +444,7 @@ cd server
 mux add spdlog
 mux add fmt
 mux build --release`}</CodeBlock>
+      <br />
       <CodeBlock lang="cpp">{`// src/main.cpp
 #include <spdlog/spdlog.h>
 
@@ -539,7 +462,7 @@ int main() {
         >
           ← Back to home
         </Link>
-        <a
+        <Link
           href="https://github.com/DHANUSH-web/mux"
           target="_blank"
           rel="noopener noreferrer"
@@ -548,7 +471,7 @@ int main() {
           <GitHubLogoIcon className="w-3.5 h-3.5" />
           View on GitHub
           <ArrowRightIcon className="w-3 h-3" />
-        </a>
+        </Link>
       </div>
     </div>
   );

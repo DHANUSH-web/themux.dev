@@ -34,7 +34,7 @@ export default function DocsLayout({
             <span className="text-white/15">/</span>
             <span className="text-sm text-white/45 font-mono">docs</span>
           </div>
-          <a
+          <Link
             href="https://github.com/DHANUSH-web/mux"
             target="_blank"
             rel="noopener noreferrer"
@@ -42,13 +42,13 @@ export default function DocsLayout({
           >
             <GitHubLogoIcon className="w-4 h-4" />
             <span className="hidden sm:inline">GitHub</span>
-          </a>
+          </Link>
         </div>
       </header>
 
       <div className="flex pt-13.25">
         {/* Sidebar */}
-        <aside className="fixed left-0 top-13.25 bottom-0 w-56 overflow-y-auto border-r border-white/6 px-3 py-6 hidden lg:block">
+        <aside className="fixed left-0 top-13.25 bottom-0 min-w-56 w-70 overflow-y-auto border-r border-white/6 px-6 py-6 hidden lg:block">
           <DocsNav />
         </aside>
 
