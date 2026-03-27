@@ -51,9 +51,9 @@ export default function InstallCmd({ className }: { className?: string }) {
       <div className="flex items-center justify-center gap-1 mt-3">
         <button
           onClick={() => setPlatform(Platform.Windows)}
-          className={`text-xs px-3 py-1 rounded-full transition-all cursor-pointer ${
+          className={`text-xs px-3 py-1 border border-transparent rounded-full transition-all cursor-pointer ${
             platform === Platform.Windows
-              ? "bg-white/10 text-white border border-white/15"
+              ? "bg-white/10 text-white border-white/15"
               : "text-white/35 hover:text-white/60"
           }`}
         >
@@ -61,9 +61,9 @@ export default function InstallCmd({ className }: { className?: string }) {
         </button>
         <button
           onClick={() => setPlatform(Platform.Unix)}
-          className={`text-xs px-3 py-1 rounded-full transition-all cursor-pointer ${
+          className={`text-xs px-3 py-1 border border-transparent rounded-full transition-all cursor-pointer ${
             platform === Platform.Unix
-              ? "bg-white/10 text-white border border-white/15"
+              ? "bg-white/10 text-white border-white/15"
               : "text-white/35 hover:text-white/60"
           }`}
         >
