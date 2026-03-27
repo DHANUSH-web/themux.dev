@@ -8,7 +8,6 @@ import {
   GlobeIcon,
   CodeIcon,
   ArchiveIcon,
-  OpenInNewWindowIcon,
   RocketIcon,
 } from "@radix-ui/react-icons";
 
@@ -168,13 +167,11 @@ export default async function Home() {
             View on GitHub
           </Link>
           <Link
-            href="https://github.com/DHANUSH-web/mux#readme"
-            target="_blank"
+            href="/docs"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-white/12 text-white/60 text-sm font-medium hover:text-white hover:border-white/25 transition-all"
           >
             Read the docs
-            <OpenInNewWindowIcon className="w-3.5 h-3.5" />
           </Link>
         </div>
       </main>
